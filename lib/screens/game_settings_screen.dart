@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+import '../config/app_config.dart';
+import '../services/consent_service.dart';
 import '../services/settings_service.dart';
 import '../services/sound_effects.dart';
+import 'legal_document_screen.dart';
 
 enum SettingsOpenSource { home, game }
 
@@ -26,15 +29,6 @@ class GameSettingsScreen extends StatelessWidget {
   static const Color _lightBorder = Color(0xFFFFD69A);
   static const Color _inactiveColor = Color(0xFFD6A16C);
 
-  static const String _playStoreUrl =
-      'https://play.google.com/store/apps/details?id=YOUR_PACKAGE_NAME';
-
-  static const String _supportEmail = 'your@email.com';
-
-  static const String _privacyUrl = 'https://yourwebsite.com/privacy';
-
-  static const String _termsUrl = 'https://yourwebsite.com/terms';
-
   Future<void> _openUrl(String url) async {
     final Uri uri = Uri.parse(url);
 
@@ -44,7 +38,7 @@ class GameSettingsScreen extends StatelessWidget {
   Future<void> _openEmail() async {
     final Uri emailUri = Uri(
       scheme: 'mailto',
-      path: _supportEmail,
+      path: AppConfig.supportEmail,
       queryParameters: {'subject': 'Fruit Merge Support'},
     );
 
@@ -123,25 +117,6 @@ class GameSettingsScreen extends StatelessWidget {
                                     },
                                   ),
                                 ),
-
-                                const _SettingsDivider(),
-
-                                _SettingsTile(
-                                  icon: settings.musicEnabled
-                                      ? Icons.music_note_rounded
-                                      : Icons.music_off_rounded,
-                                  iconBackground: const Color(0xFFE7D8FF),
-                                  iconColor: const Color(0xFFA96DE8),
-                                  title: 'Music',
-                                  subtitle: 'Background game music',
-                                  trailing: _SettingsSwitch(
-                                    value: settings.musicEnabled,
-                                    onChanged: (_) {
-                                      SoundEffects.playButtonTap(settings);
-                                      settings.toggleMusic();
-                                    },
-                                  ),
-                                ),
                               ],
                             ),
 
@@ -165,7 +140,7 @@ class GameSettingsScreen extends StatelessWidget {
                                   showArrow: true,
                                   onTap: () {
                                     SoundEffects.playButtonTap(settings);
-                                    _openUrl(_playStoreUrl);
+                                    _openUrl(AppConfig.playStoreUrl);
                                   },
                                 ),
 
@@ -206,11 +181,49 @@ class GameSettingsScreen extends StatelessWidget {
                                   showArrow: true,
                                   onTap: () {
                                     SoundEffects.playButtonTap(settings);
-                                    _openUrl(_privacyUrl);
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (_) =>
+                                            const LegalDocumentScreen(
+                                              title: 'Privacy Policy',
+                                              onlineUrl:
+                                                  AppConfig.privacyPolicyUrl,
+                                              sections: LegalDocumentScreen
+                                                  .privacySections,
+                                            ),
+                                      ),
+                                    );
                                   },
                                 ),
 
                                 const _SettingsDivider(),
+
+                                if (ConsentService.privacyOptionsRequired) ...[
+                                  _SettingsTile(
+                                    icon: Icons.tune_rounded,
+                                    iconBackground: const Color(0xFFDFF1FF),
+                                    iconColor: const Color(0xFF368ED8),
+                                    title: 'Advertising privacy choices',
+                                    subtitle: 'Review your consent choices',
+                                    showArrow: true,
+                                    onTap: () async {
+                                      await SoundEffects.playButtonTap(
+                                        settings,
+                                      );
+                                      final error =
+                                          await ConsentService.showPrivacyOptions();
+                                      if (context.mounted && error != null) {
+                                        ScaffoldMessenger.of(
+                                          context,
+                                        ).showSnackBar(
+                                          SnackBar(content: Text(error)),
+                                        );
+                                      }
+                                    },
+                                  ),
+                                  const _SettingsDivider(),
+                                ],
 
                                 _SettingsTile(
                                   icon: Icons.description_rounded,
@@ -221,7 +234,19 @@ class GameSettingsScreen extends StatelessWidget {
                                   showArrow: true,
                                   onTap: () {
                                     SoundEffects.playButtonTap(settings);
-                                    _openUrl(_termsUrl);
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (_) =>
+                                            const LegalDocumentScreen(
+                                              title: 'Terms of Service',
+                                              onlineUrl:
+                                                  AppConfig.termsOfServiceUrl,
+                                              sections: LegalDocumentScreen
+                                                  .termsSections,
+                                            ),
+                                      ),
+                                    );
                                   },
                                 ),
                               ],
@@ -520,7 +545,7 @@ class _SettingsTile extends StatelessWidget {
                 ),
               ),
 
-              if (trailingWidget != null) trailingWidget,
+              ?trailingWidget,
 
               if (showArrow)
                 Container(

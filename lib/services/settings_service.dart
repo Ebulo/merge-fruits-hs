@@ -3,18 +3,15 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 class SettingsService extends ChangeNotifier {
   static const String _soundKey = 'sound_enabled';
-  static const String _musicKey = 'music_enabled';
   static const String _vibrationKey = 'vibration_enabled';
 
   bool soundEnabled = true;
-  bool musicEnabled = true;
   bool vibrationEnabled = true;
 
   Future<void> load() async {
     final prefs = await SharedPreferences.getInstance();
 
     soundEnabled = prefs.getBool(_soundKey) ?? true;
-    musicEnabled = prefs.getBool(_musicKey) ?? true;
     vibrationEnabled = prefs.getBool(_vibrationKey) ?? true;
 
     notifyListeners();
@@ -26,14 +23,6 @@ class SettingsService extends ChangeNotifier {
 
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool(_soundKey, soundEnabled);
-  }
-
-  Future<void> toggleMusic() async {
-    musicEnabled = !musicEnabled;
-    notifyListeners();
-
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setBool(_musicKey, musicEnabled);
   }
 
   Future<void> toggleVibration() async {

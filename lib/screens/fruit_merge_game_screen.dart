@@ -34,29 +34,29 @@ class _FruitMergeGameScreenState extends State<FruitMergeGameScreen> {
   bool _isAdvancingLevel = false;
 
   @override
-void initState() {
-  super.initState();
+  void initState() {
+    super.initState();
 
-  game = FruitMergeController(
-    startingLevel: widget.startingLevel,
-    settingsService: widget.settings,
-  );
+    game = FruitMergeController(
+      startingLevel: widget.startingLevel,
+      settingsService: widget.settings,
+    );
 
-  BannerAdService.loadBanner(() {
-    if (mounted) {
-      setState(() {});
-    }
-  });
-}
+    BannerAdService.loadBanner(() {
+      if (mounted) {
+        setState(() {});
+      }
+    });
+  }
 
   @override
-void dispose() {
-  BannerAdService.dispose();
+  void dispose() {
+    BannerAdService.dispose();
 
-  game.dispose();
+    game.dispose();
 
-  super.dispose();
-}
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -72,22 +72,19 @@ void dispose() {
               children: [
                 Column(
                   children: [
-  _topArea(),
+                    _topArea(),
 
-  Expanded(
-    child: FruitBoard(controller: game),
-  ),
+                    Expanded(child: FruitBoard(controller: game)),
 
-  if (BannerAdService.isLoaded &&
-      BannerAdService.bannerAd != null)
-    SizedBox(
-      width: BannerAdService.bannerAd!.size.width.toDouble(),
-      height: BannerAdService.bannerAd!.size.height.toDouble(),
-      child: AdWidget(
-        ad: BannerAdService.bannerAd!,
-      ),
-    ),
-],
+                    if (BannerAdService.isLoaded &&
+                        BannerAdService.bannerAd != null)
+                      SizedBox(
+                        width: BannerAdService.bannerAd!.size.width.toDouble(),
+                        height: BannerAdService.bannerAd!.size.height
+                            .toDouble(),
+                        child: AdWidget(ad: BannerAdService.bannerAd!),
+                      ),
+                  ],
                 ),
 
                 if (game.state == MergeState.levelComplete)
@@ -347,25 +344,25 @@ void dispose() {
   // ============================================================
 
   Future<void> _nextLevel() async {
-  if (_isAdvancingLevel) return;
+    if (_isAdvancingLevel) return;
 
-  _isAdvancingLevel = true;
+    _isAdvancingLevel = true;
 
-  await game.playButtonSound();
+    await game.playButtonSound();
 
-  await InterstitialAdService.showIfAvailable();
+    await InterstitialAdService.showIfAvailable();
 
-  if (!mounted) return;
+    if (!mounted) return;
 
-  await widget.progress.unlockLevel(game.currentLevel + 1);
+    await widget.progress.unlockLevel(game.currentLevel + 1);
 
-  bestScoreSaved = false;
-  levelUnlockSaved = false;
+    bestScoreSaved = false;
+    levelUnlockSaved = false;
 
-  game.nextGameLevel();
+    game.nextGameLevel();
 
-  _isAdvancingLevel = false;
-}
+    _isAdvancingLevel = false;
+  }
   // ============================================================
   // GO HOME
   // ============================================================

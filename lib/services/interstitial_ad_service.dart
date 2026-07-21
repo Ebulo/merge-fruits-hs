@@ -1,27 +1,19 @@
 import 'package:flutter/foundation.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 
+import 'ad_config.dart';
+import 'consent_service.dart';
+
 class InterstitialAdService {
   InterstitialAdService._();
 
   static InterstitialAd? _interstitialAd;
   static bool _isLoading = false;
 
-  static const String _androidAdUnitId =
-      'ca-app-pub-5695270850021201/2967435494';
-
-  static const String _iosAdUnitId =
-      'ca-app-pub-3940256099942544/4411468910';
-
   static bool get _isSupported =>
       !kIsWeb &&
       (defaultTargetPlatform == TargetPlatform.android ||
           defaultTargetPlatform == TargetPlatform.iOS);
-
-  static String get _adUnitId =>
-      defaultTargetPlatform == TargetPlatform.iOS
-          ? _iosAdUnitId
-          : _androidAdUnitId;
 
   //==========================================================
   // INITIALIZE
@@ -30,19 +22,18 @@ class InterstitialAdService {
   static Future<void> initialize() async {
     if (!_isSupported) return;
 
-    await MobileAds.instance.initialize();
-
-    debugPrint("✅ AdMob Initialized");
-
-    preload();
+    final canRequestAds = await ConsentService.gatherConsentAndInitializeAds();
+    if (canRequestAds) {
+      preload();
+    }
   }
 
   //==========================================================
   // PRELOAD AD
   //==========================================================
 
-  static void preload() {
-    if (!_isSupported) return;
+  static Future<void> preload() async {
+    if (!_isSupported || !await ConsentService.canRequestAds()) return;
 
     if (_interstitialAd != null) return;
 
@@ -53,7 +44,7 @@ class InterstitialAdService {
     debugPrint("📥 Loading Interstitial...");
 
     InterstitialAd.load(
-      adUnitId: _adUnitId,
+      adUnitId: AdConfig.interstitialAdUnitId(),
       request: const AdRequest(),
       adLoadCallback: InterstitialAdLoadCallback(
         onAdLoaded: (InterstitialAd ad) {

@@ -4,6 +4,7 @@ import '../services/daily_reward_service.dart';
 import '../services/progress_service.dart';
 import '../services/settings_service.dart';
 import '../services/sound_effects.dart';
+import '../widgets/daily_sign_in_card.dart';
 import 'fruit_merge_game_screen.dart';
 import 'game_settings_screen.dart';
 
@@ -53,6 +54,10 @@ class FruitMergeHomeScreen extends StatelessWidget {
 
                           const Spacer(),
 
+                          _CoinChip(coins: progress.coins),
+
+                          const SizedBox(width: 10),
+
                           // =============================================
                           // SETTINGS PNG
                           // =============================================
@@ -73,32 +78,21 @@ class FruitMergeHomeScreen extends StatelessWidget {
                         ],
                       ),
 
+                      const SizedBox(height: 12),
+
+                      DailySignInCard(
+                        dailyReward: dailyReward,
+                        progress: progress,
+                        settings: settings,
+                      ),
+
                       // =================================================
                       // CENTER AREA
                       // =================================================
                       Expanded(
-                        child: Column(
-                          children: [
-                            const Spacer(flex: 2),
-
-                            // ===========================================
-                            // FRUIT LOGO
-                            // ===========================================
-                            Image.asset(
-                              'assets/images/frutie logo.png',
-                              width: 250,
-                              fit: BoxFit.contain,
-                            ),
-
-                            // ===========================================
-                            // SPACE
-                            // ===========================================
-                            const Spacer(flex: 5),
-
-                            // ===========================================
-                            // PLAY BUTTON
-                            // ===========================================
-                            _PlayButton(
+                        child: LayoutBuilder(
+                          builder: (context, constraints) {
+                            final playButton = _PlayButton(
                               onTap: () {
                                 SoundEffects.playButtonTap(settings);
                                 Navigator.push(
@@ -112,10 +106,37 @@ class FruitMergeHomeScreen extends StatelessWidget {
                                   ),
                                 );
                               },
-                            ),
+                            );
 
-                            const SizedBox(height: 25),
-                          ],
+                            if (constraints.maxHeight < 280) {
+                              return Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Image.asset(
+                                    'assets/images/frutie logo.png',
+                                    width: 185,
+                                    fit: BoxFit.contain,
+                                  ),
+                                  const SizedBox(width: 46),
+                                  playButton,
+                                ],
+                              );
+                            }
+
+                            return Column(
+                              children: [
+                                const Spacer(flex: 2),
+                                Image.asset(
+                                  'assets/images/frutie logo.png',
+                                  width: 250,
+                                  fit: BoxFit.contain,
+                                ),
+                                const Spacer(flex: 5),
+                                playButton,
+                                const SizedBox(height: 25),
+                              ],
+                            );
+                          },
                         ),
                       ),
                     ],
@@ -126,6 +147,39 @@ class FruitMergeHomeScreen extends StatelessWidget {
           ),
         );
       },
+    );
+  }
+}
+
+class _CoinChip extends StatelessWidget {
+  const _CoinChip({required this.coins});
+
+  final int coins;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 11, vertical: 8),
+      decoration: BoxDecoration(
+        color: const Color(0xFFFFF4C7),
+        borderRadius: BorderRadius.circular(18),
+        border: Border.all(color: const Color(0xFFFFB83D), width: 2),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          const Text('🍒', style: TextStyle(fontSize: 17)),
+          const SizedBox(width: 5),
+          Text(
+            '$coins',
+            style: const TextStyle(
+              color: Color(0xFFA84B00),
+              fontSize: 13,
+              fontWeight: FontWeight.w900,
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

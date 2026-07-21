@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../services/daily_reward_service.dart';
+import '../services/progress_service.dart';
 import '../services/settings_service.dart';
 import '../services/sound_effects.dart';
 
@@ -8,10 +9,12 @@ class DailySignInCard extends StatelessWidget {
   const DailySignInCard({
     super.key,
     required this.dailyReward,
+    required this.progress,
     required this.settings,
   });
 
   final DailyRewardService dailyReward;
+  final ProgressService progress;
   final SettingsService settings;
 
   @override
@@ -21,24 +24,14 @@ class DailySignInCard extends StatelessWidget {
       builder: (context, _) {
         return Container(
           width: double.infinity,
-          padding: const EdgeInsets.fromLTRB(
-            12,
-            12,
-            12,
-            12,
-          ),
+          padding: const EdgeInsets.fromLTRB(12, 12, 12, 12),
           decoration: BoxDecoration(
             color: const Color(0xFFEAF8FF),
             borderRadius: BorderRadius.circular(20),
-            border: Border.all(
-              color: const Color(0xFF79C8ED),
-              width: 2.5,
-            ),
+            border: Border.all(color: const Color(0xFF79C8ED), width: 2.5),
             boxShadow: [
               BoxShadow(
-                color: const Color(
-                  0xFF4DA6D2,
-                ).withValues(alpha: 0.25),
+                color: const Color(0xFF4DA6D2).withValues(alpha: 0.25),
                 offset: const Offset(0, 4),
                 blurRadius: 2,
               ),
@@ -50,11 +43,9 @@ class DailySignInCard extends StatelessWidget {
               // =======================================================
               // HEADER
               // =======================================================
-
               Row(
                 children: [
                   // FIRE ICON
-
                   Container(
                     width: 36,
                     height: 36,
@@ -67,22 +58,15 @@ class DailySignInCard extends StatelessWidget {
                         width: 2,
                       ),
                     ),
-                    child: const Text(
-                      '🔥',
-                      style: TextStyle(
-                        fontSize: 20,
-                      ),
-                    ),
+                    child: const Text('🔥', style: TextStyle(fontSize: 20)),
                   ),
 
                   const SizedBox(width: 9),
 
                   // TITLE
-
                   const Expanded(
                     child: Column(
-                      crossAxisAlignment:
-                          CrossAxisAlignment.start,
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
                           'DAILY STREAK',
@@ -109,7 +93,6 @@ class DailySignInCard extends StatelessWidget {
                   ),
 
                   // CURRENT DAY
-
                   Container(
                     padding: const EdgeInsets.symmetric(
                       horizontal: 10,
@@ -140,44 +123,34 @@ class DailySignInCard extends StatelessWidget {
               // =======================================================
               // 7 DAY REWARD CARDS
               // =======================================================
-
               Row(
-                children: List.generate(
-                  7,
-                  (index) {
-                    final day = index + 1;
+                children: List.generate(7, (index) {
+                  final weekStart = ((dailyReward.currentDay - 1) ~/ 7) * 7 + 1;
+                  final day = weekStart + index;
 
-                    final completed =
-                        dailyReward.isDayCompleted(day);
+                  final completed = dailyReward.isDayCompleted(day);
 
-                    final current =
-                        dailyReward.isCurrentDay(day);
+                  final current = dailyReward.isCurrentDay(day);
 
-                    return Expanded(
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 2,
-                        ),
-                        child: _RewardDayCard(
-                          day: day,
-                          reward:
-                              dailyReward.rewardForDay(day),
-                          completed: completed,
-                          current: current,
-                          claimedToday:
-                              dailyReward.claimedToday,
-                          onTap: () {
-                            if (current &&
-                                dailyReward.canClaim) {
-                              SoundEffects.playButtonTap(settings);
-                              _claimReward(context);
-                            }
-                          },
-                        ),
+                  return Expanded(
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 2),
+                      child: _RewardDayCard(
+                        day: day,
+                        reward: dailyReward.rewardForDay(day),
+                        completed: completed,
+                        current: current,
+                        claimedToday: dailyReward.claimedToday,
+                        onTap: () {
+                          if (current && dailyReward.canClaim) {
+                            SoundEffects.playButtonTap(settings);
+                            _claimReward(context);
+                          }
+                        },
                       ),
-                    );
-                  },
-                ),
+                    ),
+                  );
+                }),
               ),
             ],
           ),
@@ -190,9 +163,7 @@ class DailySignInCard extends StatelessWidget {
   // CLAIM REWARD
   // ===================================================================
 
-  Future<void> _claimReward(
-    BuildContext context,
-  ) async {
+  Future<void> _claimReward(BuildContext context) async {
     final reward = dailyReward.currentReward;
 
     final claimed = await dailyReward.claimReward();
@@ -201,22 +172,21 @@ class DailySignInCard extends StatelessWidget {
       return;
     }
 
+    await progress.addCoins(reward);
+
+    if (!context.mounted) {
+      return;
+    }
+
     // Reward claim hone ke baad sirf SnackBar show hoga.
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         behavior: SnackBarBehavior.floating,
         backgroundColor: const Color(0xFF74C943),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(14),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
         content: Row(
           children: [
-            const Text(
-              '🎁',
-              style: TextStyle(
-                fontSize: 21,
-              ),
-            ),
+            const Text('🎁', style: TextStyle(fontSize: 21)),
 
             const SizedBox(width: 9),
 
@@ -260,25 +230,19 @@ class _RewardDayCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
+      key: ValueKey('daily-reward-$day'),
       onTap: onTap,
       child: AnimatedContainer(
-        duration: const Duration(
-          milliseconds: 180,
-        ),
+        duration: const Duration(milliseconds: 180),
         height: 80,
         decoration: BoxDecoration(
           color: _backgroundColor(),
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(
-            color: _borderColor(),
-            width: current ? 2.5 : 1.5,
-          ),
+          border: Border.all(color: _borderColor(), width: current ? 2.5 : 1.5),
           boxShadow: current && !claimedToday
               ? [
                   BoxShadow(
-                    color: const Color(
-                      0xFFFFB84D,
-                    ).withValues(alpha: 0.30),
+                    color: const Color(0xFFFFB84D).withValues(alpha: 0.30),
                     offset: const Offset(0, 3),
                   ),
                 ]
@@ -289,7 +253,6 @@ class _RewardDayCard extends StatelessWidget {
             // =========================================================
             // DAY NUMBER
             // =========================================================
-
             Container(
               height: 20,
               alignment: Alignment.center,
@@ -306,7 +269,6 @@ class _RewardDayCard extends StatelessWidget {
             // =========================================================
             // REWARD ICON
             // =========================================================
-
             Expanded(
               child: Center(
                 child: completed
@@ -317,9 +279,7 @@ class _RewardDayCard extends StatelessWidget {
                       )
                     : Text(
                         day == 7 ? '🎁' : '🍒',
-                        style: const TextStyle(
-                          fontSize: 23,
-                        ),
+                        style: const TextStyle(fontSize: 23),
                       ),
               ),
             ),
@@ -327,7 +287,6 @@ class _RewardDayCard extends StatelessWidget {
             // =========================================================
             // REWARD AMOUNT
             // =========================================================
-
             Container(
               height: 20,
               alignment: Alignment.center,

@@ -86,10 +86,7 @@ class DailyRewardService extends ChangeNotifier {
 
     lastClaimDate = _todayDate;
 
-    await prefs.setString(
-      _lastClaimDateKey,
-      lastClaimDate!,
-    );
+    await prefs.setString(_lastClaimDateKey, lastClaimDate!);
 
     // Day 28 ke baad cycle dobara Day 1 se start hogi.
     if (currentDay >= 28) {
@@ -98,10 +95,7 @@ class DailyRewardService extends ChangeNotifier {
       currentDay++;
     }
 
-    await prefs.setInt(
-      _currentDayKey,
-      currentDay,
-    );
+    await prefs.setInt(_currentDayKey, currentDay);
 
     notifyListeners();
 

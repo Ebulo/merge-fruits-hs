@@ -676,6 +676,8 @@ class FruitMergeController extends ChangeNotifier {
 
     _comboTimer = comboTimeout;
 
+    unawaited(SoundEffects.playMergeHaptic(settingsService, combo));
+
     // ===========================================================
     // SOUND
     // ===========================================================

@@ -27,10 +27,7 @@ class LevelSuccessPopup extends StatelessWidget {
               // =========================================================
               // SMALL POPUP SIZE
               // =========================================================
-
-              width: screenSize.width > 430
-                  ? 330
-                  : screenSize.width * 0.78,
+              width: screenSize.width > 430 ? 330 : screenSize.width * 0.78,
 
               child: AspectRatio(
                 aspectRatio: 0.72,
@@ -46,17 +43,12 @@ class LevelSuccessPopup extends StatelessWidget {
                         // =================================================
                         // FULL CONGRATS POPUP PNG
                         // =================================================
-
                         Positioned.fill(
                           child: Image.asset(
                             'assets/images/Congrats.png',
                             fit: BoxFit.contain,
 
-                            errorBuilder: (
-                              context,
-                              error,
-                              stackTrace,
-                            ) {
+                            errorBuilder: (context, error, stackTrace) {
                               return Container(
                                 alignment: Alignment.center,
                                 decoration: BoxDecoration(
@@ -83,7 +75,6 @@ class LevelSuccessPopup extends StatelessWidget {
                         // Level 2 = 2
                         // Level 3 = 3
                         // =================================================
-
                         Positioned(
                           top: popupHeight * 0.42,
                           left: 0,
@@ -101,7 +92,6 @@ class LevelSuccessPopup extends StatelessWidget {
                         //
                         // Continue button Congrats.png ke andar hai
                         // =================================================
-
                         Positioned(
                           left: popupWidth * 0.15,
                           right: popupWidth * 0.15,
@@ -126,16 +116,12 @@ class LevelSuccessPopup extends StatelessWidget {
   }
 }
 
-
 // ==========================================================================
 // DYNAMIC LEVEL NUMBER
 // ==========================================================================
 
 class _LevelNumber extends StatelessWidget {
-  const _LevelNumber({
-    required this.level,
-    required this.fontSize,
-  });
+  const _LevelNumber({required this.level, required this.fontSize});
 
   final int level;
   final double fontSize;
@@ -148,7 +134,6 @@ class _LevelNumber extends StatelessWidget {
         // ================================================================
         // DARK BLUE OUTLINE
         // ================================================================
-
         Text(
           '$level',
           textAlign: TextAlign.center,
@@ -167,7 +152,6 @@ class _LevelNumber extends StatelessWidget {
         // ================================================================
         // CREAM LEVEL NUMBER
         // ================================================================
-
         Text(
           '$level',
           textAlign: TextAlign.center,
