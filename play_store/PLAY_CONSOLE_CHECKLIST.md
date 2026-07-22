@@ -4,8 +4,8 @@
 
 - App name: Fruit Merge
 - Package name: `com.krishna.newgame.prism_paths`
-- Version name: `1.0.0`
-- Version code: `2`
+- Version name: `1.0.1`
+- Version code: `3`
 - Target SDK: `36`
 - Release bundle: `build/app/outputs/bundle/release/app-release.aab`
 

@@ -44,6 +44,7 @@ android {
     buildTypes {
         release {
             signingConfig = signingConfigs.getByName("release")
+            proguardFiles("proguard-rules.pro")
         }
     }
 }
@@ -56,4 +57,11 @@ kotlin {
 
 flutter {
     source = "../.."
+}
+
+// Google Mobile Ads 25.3.0 brings WorkManager 2.7.0 transitively. That
+// version is not compatible with the AndroidX Lifecycle version used by the
+// current Flutter Android embedding, and can crash before Flutter starts.
+dependencies {
+    implementation("androidx.work:work-runtime:2.10.5")
 }
